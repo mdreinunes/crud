@@ -1,60 +1,39 @@
 package crud;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DBFunctions {
-    public Connection connect_to_db(String dbnome, String user, String pass) {
-        Connection conn = null;
-        try {
-            Class.forName("org.postgresql.Driver");
-            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + dbnome, user, pass);
-            if (conn != null) {
-                System.out.println("Conexao estabelecida!");
-            } else {
-                System.out.println("Conexao falhada!");
-            }
+    Connection conn = null;
 
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        return conn;
-    }
-
-    //create(table)
-    public void createTable(Connection conn, String tabela) {
-        Statement statement;
+    public  void connect(String password) {
         try {
-            String query = "create table " + tabela + "(id_pessoa INTEGER ,nome varchar(200),endereco varchar(200), contato varchar(200),primary key(id_pessoa));";
-            statement = conn.createStatement();
-            statement.executeUpdate(query);
-            System.out.println("Tabela criada!");
-        } catch (Exception e) {
-            System.out.println(e);
+            this.conn = DriverManager.getConnection("jdbc:postgresql://localhost/db_crud", "postgres", password);
+            System.out.println("Conexao estabelecida");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
+
 
     //create
-    public void inserir(Connection conn, String tabela, Integer id, String nome, String contato, String endereco) {
+    public void create(String nome, String contato, String endereco) {
         Statement statement;
         try {
-            String query = String.format("insert into %s (id_pessoa, nome, contato, endereco) values ('%s', '%s', '%s', '%s');", tabela, id, nome, contato, endereco);
+            String query = String.format("insert into pessoas (nome, contato, endereco) values ('%s', '%s', '%s');", nome, contato, endereco);
             statement = conn.createStatement();
             statement.executeUpdate(query);
             System.out.println("Dado inserido!");
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
     //read(all)
-    public void read_all(Connection conn, String tabela) {
+    public void read_all() {
         Statement statement;
         ResultSet rs = null;
         try {
-            String query = String.format("select * from %s", tabela);
+            String query = String.format("select * from pessoas");
             statement = conn.createStatement();
             rs = statement.executeQuery(query);
             while (rs.next()) {
@@ -64,29 +43,29 @@ public class DBFunctions {
                 System.out.println(rs.getString("endereco") + " ");
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
     //update
-    public void updade_name(Connection conn, String tabela, String old_name, String new_name) {
+    public void updade_name(String old_name, String new_name) {
         Statement statement;
         try {
-            String query = String.format("update %s set nome='%s' where nome='%s'", tabela, new_name, old_name);
+            String query = String.format("update pessoas set nome='%s' where nome='%s'", new_name, old_name);
             statement = conn.createStatement();
             statement.executeUpdate(query);
             System.out.println("Campo atualizado");
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
     //read(id)
-    public void read_id(Connection conn, String tabela, Integer id_pessoa) {
+    public void read_id(Integer id_pessoa) {
         Statement statement;
         ResultSet rs = null;
         try {
-            String query = String.format("select * from %s where id_pessoa = '%s' ", tabela, id_pessoa);
+            String query = String.format("select * from pessoas where id_pessoa = '%s' ", id_pessoa);
             statement = conn.createStatement();
             rs = statement.executeQuery(query);
             while (rs.next()) {
@@ -97,36 +76,25 @@ public class DBFunctions {
             }
 
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
     }
 
     //delete(id)
-    public void delete_id(Connection conn, String tabela, Integer id) {
+    public void delete_id(Integer id) {
         Statement statement;
         try {
-            String query = String.format("delete from %s where id_pessoa = '%s'", tabela, id);
+            String query = String.format("delete from pessoas where id_pessoa = '%s'", id);
             statement = conn.createStatement();
             statement.executeUpdate(query);
             System.out.println("Deletado com sucesso!");
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
     }
 
-    //delete(tabe)
-    public void delete_table(Connection conn, String tabela) {
-        Statement statement;
-        try {
-            String query = String.format("drop table %s", tabela);
-            statement = conn.createStatement();
-            statement.executeUpdate(query);
-            System.out.println("Tabela deletada!");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
+
 }
 
